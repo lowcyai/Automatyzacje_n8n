@@ -1,0 +1,330 @@
+{
+  "name": "transformacje_danych_w_n8n",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        -64
+      ],
+      "id": "4f2912cd-6a94-46e8-be0c-98bf7c8a7aaf",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "// N8N Function Node\n// Jeden item z polem \"liczby\"\nreturn [\n  {\n    json: {\n      liczby: \"1;2;3;4;5;6;7;8\"\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -592,
+        -128
+      ],
+      "id": "ddcec209-a27e-46a7-9770-17214c1442ff",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7328088d-ae6a-40d8-a797-57a68a5f6471",
+              "name": "tablica",
+              "value": "={{ $json.liczby.split(\";\") }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -416,
+        -112
+      ],
+      "id": "53fb05b2-f8ca-4179-a7d8-8d9949450869",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "tablica",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        -112
+      ],
+      "id": "9342150b-5c29-40b7-8b7a-0034462e4788",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        464,
+        -32
+      ],
+      "id": "6195cc85-efa7-46ee-a5d5-2c0e4b6f2784",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ae4cc8f6-124f-46a6-9509-7d0e2e74feca",
+              "leftValue": "={{ $json.tablica }}",
+              "rightValue": 4,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        80,
+        48
+      ],
+      "id": "0684a4db-5901-4a4f-9ea4-a37be65f67d6",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "jsCode": "// N8N Function Node\n// Jeden item z polem \"liczby\"\nreturn [\n  {\n    json: {\n      liczby: \"1;2;3;4;5;6;7;8\"\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        64
+      ],
+      "id": "c73bca88-be43-4d38-bce4-fec4f9ffd389",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7328088d-ae6a-40d8-a797-57a68a5f6471",
+              "name": "tablica",
+              "value": "={{ $json.liczby.split(\";\") }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -400,
+        96
+      ],
+      "id": "b5aad433-7882-4877-b58b-d7922ee06e5c",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "tablica",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        96
+      ],
+      "id": "b8fbdcd2-34ae-4fd6-ae5e-f2746e5661d0",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a624c6f6-c100-4073-abac-abb8110e0238",
+              "name": "tablica",
+              "value": "={{ $json.tablica }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -48,
+        96
+      ],
+      "id": "6080c38b-d688-4ea3-8de0-59e22128c200",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "maxItems": 4
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        128,
+        -112
+      ],
+      "id": "f8fb2b1e-afef-40d9-8cc3-d08b8cfebabf",
+      "name": "Limit"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        []
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b27cf64c-849f-4815-b1b5-4e118c52f5b1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "679bca8e3c8017295e1c2e65d80efaddee5b06ee59e23ae124d21fa27678ffad"
+  },
+  "id": "04b0L5ugMNDxwd6h",
+  "tags": []
+}
