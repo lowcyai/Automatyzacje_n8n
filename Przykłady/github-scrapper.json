@@ -1,0 +1,1201 @@
+{
+  "name": "github-scrapper",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "13e88a41-74f4-49f9-8f74-9e80883a6a16",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -224,
+        -528
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "binaryPropertyName": "=data",
+        "options": {
+          "fileName": "result.csv",
+          "headerRow": true
+        }
+      },
+      "id": "82927640-3b0a-4fd5-aa84-ac8bf9efdc18",
+      "name": "Convert to File1",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        4112,
+        272
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "PLIK:",
+        "options": {
+          "avatar_url": "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
+          "username": "HG-bot"
+        },
+        "files": {
+          "values": [
+            {}
+          ]
+        }
+      },
+      "id": "fbdd4f56-a48b-433f-a629-58b75994cc62",
+      "name": "Discord2",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        4752,
+        272
+      ],
+      "webhookId": "315a6fcf-714f-4c60-a7b4-d8fb608b70fd"
+    },
+    {
+      "parameters": {
+        "batchSize": 3,
+        "options": {}
+      },
+      "id": "768576d6-ac18-4b7c-b889-40cd6a8b1311",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        592,
+        -528
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "={{ $json.link }}\n\n``` {{ $json.text}} ```",
+        "options": {
+          "avatar_url": "",
+          "username": "GITHUB",
+          "wait": true
+        }
+      },
+      "id": "fa24b992-4b6f-4b1d-98a9-5c9bc698d51c",
+      "name": "Discord",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        5312,
+        16
+      ],
+      "retryOnFail": true,
+      "waitBetweenTries": 4000,
+      "webhookId": "f793782e-4a85-4927-96d4-6e212ac9d8de",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "links",
+        "options": {}
+      },
+      "id": "91473122-cdeb-4405-86b3-8c544d477f5d",
+      "name": "Split Out1",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        384,
+        -544
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.links }}",
+        "options": {}
+      },
+      "id": "6855c186-dad7-422c-b25c-d1daa71e0a96",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        176,
+        -208
+      ],
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "name",
+              "cssSelector": ".container-lg"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "30bced10-17ec-4c78-a35d-c22bbd7e6be1",
+      "name": "HTML1",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1552,
+        -208
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "events": [
+          "activate"
+        ]
+      },
+      "id": "e4419efd-1fe0-4452-af45-2e1c0786d43d",
+      "name": "Workflow Trigger",
+      "type": "n8n-nodes-base.workflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -304
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Na podstawie dostępnych danych o projekcie GitHub przygotuj analizę repozytorium.\n\nProjekt:\n{{ $json.name }}\n\nZasady:\n\nPisz wyłącznie po polsku.\n\nStyl: rzeczowy, konkretny, techniczny.\n\nNie kopiuj treści 1:1 z README — parafrazuj i syntetyzuj.\n\nJeśli brakuje danych, wpisz: \"Brak informacji\".\n\nJeśli dane wejściowe są puste, nieczytelne lub niewystarczające, zwróć wyłącznie: \"Błąd danych\".\n\nNie dodawaj komentarzy poza wskazanym formatem.\n\nOdpowiedź w czystym markdown.\n\nOceń projekt pod kątem:\n\nmożliwości uruchomienia lokalnie,\n\nwykorzystania modeli AI (zwłaszcza LLM),\n\npraktyczności zastosowań,\n\njakości i aktywności repozytorium.\n\nZwróć odpowiedź dokładnie w tym formacie:\n\nNazwa projektu\nOpis:\n2–4 zdania czym jest projekt, do czego służy i co go wyróżnia.\n\nZastosowania:\n\n...\n\n...\n\n...\n\nZalety:\n\n...\n\n...\n\n...\n\n...\n\nWady / ograniczenia:\n\n...\n\n...\n\n...\n\n...\n\nUruchamianie lokalne:\nTak / Częściowo / Nie\n\nWykorzystanie AI / LLM:\nTak / Częściowo / Nie\n\nAktywność repozytorium:\nWysoka / Średnia / Niska / Brak informacji\n\nObsługiwane modele / technologie:\n\n...\n\n...\n\n...\nJeśli brak danych: Brak informacji\n\nWymagania techniczne:\n\nSystem / sprzęt: ...\n\nUruchomienie: ...\n\nZależności: ...\nJeśli brak danych: Brak informacji\n\nDocelowi użytkownicy:\n\n...\n\n...\n\n...\n\nOcena końcowa:\n1–2 zdania podsumowania wartości projektu i jego potencjalnego zastosowania.\n\nMaksymalnie 2000 znaków, optymalnie 1500–1800."
+      },
+      "id": "4f2842ed-b0f1-46eb-bd80-bb8343e296bf",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        2144,
+        -288
+      ]
+    },
+    {
+      "parameters": {
+        "name": "=github-{{ $today.format('yyyy-MM-dd')}}.csv",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1XVviJbHibKUk9rqL7vbQLHEwh2anqbSc",
+          "mode": "list",
+          "cachedResultName": "CSV",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1XVviJbHibKUk9rqL7vbQLHEwh2anqbSc"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4560,
+        416
+      ],
+      "id": "f1e74b1e-c1b7-4646-8955-39a815f3851c",
+      "name": "Google Drive"
+    },
+    {
+      "parameters": {
+        "amount": 20
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3856,
+        0
+      ],
+      "id": "b7237f3e-6e51-41fa-82d1-cd018b940f72",
+      "name": "Wait",
+      "webhookId": "ae2c14cb-53e9-426c-a2f4-68e7fc419f41"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1040,
+        -576
+      ],
+      "id": "25ae09ac-a7f6-44c0-98a5-70f491b6d483",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 4,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3488,
+        -208
+      ],
+      "id": "af3c5abb-8f67-4e8a-8883-6d947b94ceab",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=``` {{ $json.text }} ```",
+        "options": {
+          "avatar_url": "",
+          "username": "GITHUB",
+          "wait": true
+        }
+      },
+      "id": "d20b014b-e092-47d3-b969-5109753fbdc6",
+      "name": "Discord1",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        5376,
+        -352
+      ],
+      "retryOnFail": true,
+      "waitBetweenTries": 4000,
+      "webhookId": "53615af4-c516-4302-a354-8ae12fc98a1a",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Scrapowanie danych\nNa tym etapie jest pobierana lista projektów na github trends. ",
+        "height": 768,
+        "width": 912
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        -800
+      ],
+      "typeVersion": 1,
+      "id": "7858403e-c57e-418d-99e4-aedbcbc6c13d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8d69da43-e7aa-40f8-be14-1590b6e633fd",
+              "name": "links",
+              "value": "[\"https://github.com/trending\"]",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "191c59a0-fee7-4735-bfe7-e82ac776801d",
+      "name": "Linki do śledzenia GITHUB",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        192,
+        -544
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "name",
+              "cssSelector": ".Box-row",
+              "returnValue": "html",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {
+          "cleanUpText": false
+        }
+      },
+      "id": "59fe4d0f-9635-40a3-b0a5-898ddbd0d002",
+      "name": "Pobieranie tabeli z projektami",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        368,
+        -208
+      ],
+      "alwaysOutputData": false,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "name",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "name",
+              "cssSelector": ".Link"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        528,
+        -208
+      ],
+      "id": "e6fbb82f-046d-4839-8eff-b7e0e2c06ad0",
+      "name": "Ekstrakcja linków"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "008b6bb2-c956-4681-b30c-279e3b8ae882",
+              "name": "name",
+              "value": "={{ \"https://github.com/\"+ $json.name.replaceAll(\" \",\"\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        688,
+        -208
+      ],
+      "id": "ce58a1d5-7914-4751-ba8e-419664e9f251",
+      "name": "Naprawa linków"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "table": {
+          "__rl": true,
+          "value": "github_db",
+          "mode": "list",
+          "cachedResultName": "github_db"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "link",
+              "value": "={{ $json.name }}"
+            }
+          ]
+        },
+        "options": {
+          "selectDistinct": false,
+          "detailedOutput": true
+        }
+      },
+      "id": "2f160435-8f5d-442e-bf56-fc4c2ef92997",
+      "name": "Lista które są w bazie",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        944,
+        -288
+      ],
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "382d2226-087d-4324-9837-e74100ea6a7b",
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "36542d00-9bc8-441a-ad9b-50dde3ed814b",
+              "leftValue": "={{ $json.sql }}",
+              "rightValue": "={{ $('Naprawa linków').item.json.name }}",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "bc1eacdf-94d7-4d0a-978f-680250d11917",
+      "name": "Warunek sprawdzający",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.1,
+      "position": [
+        1680,
+        -560
+      ],
+      "alwaysOutputData": true,
+      "executeOnce": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "deleteTable",
+        "table": {
+          "__rl": true,
+          "value": "github_db",
+          "mode": "list",
+          "cachedResultName": "github_db"
+        },
+        "deleteCommand": "delete",
+        "where": {
+          "values": [
+            {
+              "column": "link",
+              "condition": "IS NULL"
+            },
+            {
+              "column": "name",
+              "condition": "IS NULL"
+            },
+            {
+              "column": "link",
+              "value": "https://github.com"
+            }
+          ]
+        },
+        "combineConditions": "OR",
+        "options": {}
+      },
+      "id": "93aa445c-d038-4426-934c-4c2e19ba0e14",
+      "name": "Usuwanie nieprawidłowych linków",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        2176,
+        -560
+      ]
+    },
+    {
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "value": "github_db",
+          "mode": "list",
+          "cachedResultName": "github_db"
+        },
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "link",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "column": "name",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "column": "processed",
+              "value": "0"
+            }
+          ]
+        },
+        "options": {
+          "replaceEmptyStrings": true
+        }
+      },
+      "id": "32c64d19-ae1d-4fa3-b59f-a85a9d270836",
+      "name": "Dodanie do bazy",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        1984,
+        -560
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "table": {
+          "__rl": true,
+          "value": "github_db",
+          "mode": "list",
+          "cachedResultName": "github_db"
+        },
+        "limit": 200,
+        "where": {
+          "values": [
+            {
+              "column": "processed",
+              "value": "0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ca34b6ce-e57f-46d5-a6b0-c6e5157f7f51",
+      "name": "Pobranie nieprzeprocesowanych",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        2384,
+        -560
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Operacje na bazie\n**Dodawanie i naprawa nieprawidłowych linków**\n",
+        "height": 368,
+        "width": 1520
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1424,
+        -768
+      ],
+      "typeVersion": 1,
+      "id": "445a92c4-51f8-489b-9642-237d693a1980",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3184,
+        -544
+      ],
+      "id": "a5f24afb-eb9e-439e-be73-4da95ea333c7",
+      "name": "Podział na 10 elementów"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.link }}",
+        "options": {
+          "timeout": 4000
+        }
+      },
+      "id": "f665c97d-f7a8-48c4-ab07-d944faf17aae",
+      "name": "Pobranie zawartości projektu",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1232,
+        32
+      ],
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Pobranie zawartości projektu\n",
+        "height": 464,
+        "width": 576
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1216,
+        -256
+      ],
+      "typeVersion": 1,
+      "id": "291e970e-6547-4bbc-b855-c7784e576e36",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Analiza\n",
+        "height": 400,
+        "width": 688
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1840,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "79e0295e-ef7e-4a5c-aae0-d843582353ce",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "table": {
+          "__rl": true,
+          "value": "github_db",
+          "mode": "list",
+          "cachedResultName": "github_db"
+        },
+        "dataMode": "defineBelow",
+        "columnToMatchOn": "id",
+        "valueToMatchOn": "={{ $json.id }}",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "original",
+              "value": "={{ $json.data }}"
+            },
+            {
+              "column": "translated",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "column": "processed",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3c9f23ff-8a68-4ed9-ba7b-f2f12e6be591",
+      "name": "Dodanie wyniku do bazy",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        4304,
+        -448
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4908d7b9-88f5-4ede-a3a3-d9c061a6184a",
+              "leftValue": "={{ parseInt($json.text.length) }}",
+              "rightValue": "={{2000}}",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        4528,
+        -176
+      ],
+      "id": "3f400442-d7a5-4157-849d-f8f36e724b85",
+      "name": "Podział jakby wiadomość była dłuższa niż 2000 znaków"
+    },
+    {
+      "parameters": {
+        "content": "## Wysyłka\nWiadomość wysyłana na discord przez webhook, zabezpieczenie jakby wiadomość miała więcej niż 2000 znaków",
+        "height": 608,
+        "width": 1088
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4496,
+        -464
+      ],
+      "typeVersion": 1,
+      "id": "e6581bde-be73-4375-96c6-c3d05cc09882",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f09d90e4-3518-410a-8854-6c7af71523ef",
+              "name": "data",
+              "value": "= {{ $json.name + \"\\n\" + $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4800,
+        -176
+      ],
+      "id": "0916e5d1-95d7-4472-a5f4-f7b39c3d8486",
+      "name": "Łączenie z linkiem + treść"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0166f982-a67d-425e-9f81-ded4bc77400a",
+              "name": "text",
+              "value": "={{ $json.data.match(/[\\s\\S]{1,1400}/g) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4992,
+        -176
+      ],
+      "id": "a415ffdd-c99e-4ed8-8355-725846839529",
+      "name": "Podział na tablicę"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        5168,
+        -192
+      ],
+      "id": "d63876f8-1090-4049-aeba-0b2f62a20346",
+      "name": "Rodzielenie na osobne elementy"
+    },
+    {
+      "parameters": {
+        "content": "## PLIK\nKonwersja na plik oraz wysyłka na GDrive oraz discord",
+        "height": 480,
+        "width": 816
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4064,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "02b3de33-301e-457e-8335-2a9328ce2ae3",
+      "name": "Sticky Note5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Linki do śledzenia GITHUB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File1": {
+      "main": [
+        [
+          {
+            "node": "Discord2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Pobieranie tabeli z projektami",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML1": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Linki do śledzenia GITHUB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        []
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Warunek sprawdzający",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Dodanie wyniku do bazy",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Podział jakby wiadomość była dłuższa niż 2000 znaków",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Linki do śledzenia GITHUB": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pobieranie tabeli z projektami": {
+      "main": [
+        [
+          {
+            "node": "Ekstrakcja linków",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ekstrakcja linków": {
+      "main": [
+        [
+          {
+            "node": "Naprawa linków",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Naprawa linków": {
+      "main": [
+        [
+          {
+            "node": "Lista które są w bazie",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lista które są w bazie": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Warunek sprawdzający": {
+      "main": [
+        [
+          {
+            "node": "Dodanie do bazy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Usuwanie nieprawidłowych linków": {
+      "main": [
+        [
+          {
+            "node": "Pobranie nieprzeprocesowanych",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dodanie do bazy": {
+      "main": [
+        [
+          {
+            "node": "Usuwanie nieprawidłowych linków",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pobranie nieprzeprocesowanych": {
+      "main": [
+        [
+          {
+            "node": "Podział na 10 elementów",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Podział na 10 elementów": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pobranie zawartości projektu",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Pobranie zawartości projektu": {
+      "main": [
+        [
+          {
+            "node": "HTML1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dodanie wyniku do bazy": {
+      "main": [
+        [
+          {
+            "node": "Podział na 10 elementów",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Podział jakby wiadomość była dłuższa niż 2000 znaków": {
+      "main": [
+        [
+          {
+            "node": "Discord1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Łączenie z linkiem + treść",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Łączenie z linkiem + treść": {
+      "main": [
+        [
+          {
+            "node": "Podział na tablicę",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Podział na tablicę": {
+      "main": [
+        [
+          {
+            "node": "Rodzielenie na osobne elementy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rodzielenie na osobne elementy": {
+      "main": [
+        [
+          {
+            "node": "Discord1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveExecutionProgress": true,
+    "timezone": "Europe/Warsaw",
+    "availableInMCP": false
+  },
+  "versionId": "ecb1f242-45e3-4641-a240-d3f130b95579",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "679bca8e3c8017295e1c2e65d80efaddee5b06ee59e23ae124d21fa27678ffad"
+  },
+  "id": "8HcCf2NNsNJrB8MZ",
+  "tags": [
+    {
+      "updatedAt": "2025-02-05T21:21:47.167Z",
+      "createdAt": "2025-02-05T21:21:47.167Z",
+      "id": "YAqM6OGsaZ0WzukQ",
+      "name": "scrapers"
+    }
+  ]
+}
